@@ -23,12 +23,23 @@
     <main>
         <h1>Mein Profil</h1>
 
-        Hier sollen alle persönlichen Daten des Kunden stehen.</br>
-
+        <!-- Persönliche Daten des Kunden werden angezeigt -->
+        <ul>
+            <li><strong>Vorname:</strong> <%= Vorname %></li>
+            <li><strong>Nachname:</strong> <%= Nachname %></li>
+            <li><strong>Benutzername:</strong> <%= Benutzername %></li>
+            <li><strong>Mail-Adresse:</strong> <%= Email %></li>
+            <li><strong>Telefonnummer:</strong> <%= Telefonnummer %></li> <!-- Telefonnummer ergänzt -->
+        </ul>
         <form method="post">            
             <label>Mail-Adresse</label></br>
-            <input type="text" name="Email" value=<%= Email %>>
+            <input type="text" name="Email" value="<%= Email %>">
             <button type="submit" formaction="/profil">Mail-Adresse ändern</button>
+        </form>
+        <form method="post">            
+            <label>Telefonnummer</label></br>
+            <input type="text" name="Telefonnummer" value="<%= Telefonnummer %>">
+            <button type="submit" formaction="/profil/telefon">Telefonnummer ändern</button>
         </form>                
         <p><%= Meldung %></p>
     </main>

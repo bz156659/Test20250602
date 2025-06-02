@@ -64,6 +64,8 @@ class Kunde{
 		this.Vorname
 		this.Benutzername
 		this.Kennwort
+		this.Mail //  E-Mail hinzugefügt 
+		this.Telefonnummer // Telefonnummer hinzugefügt 
 		// IstEingeloggt ist ein boolean.
 		// Der Wert ist entweder wahr oder falsch.
 		this.IstEingeloggt
@@ -78,6 +80,8 @@ kunde.Nachname = "Kiff"
 kunde.Vorname = "Pit"
 kunde.Benutzername = "pk"
 kunde.Kennwort = "123"
+kunde.Mail = "kiff@borken-bank.de" // Beispielwert für Mail
+kunde.Telefonnummer = "01578-544830" // Beispielwert für Telefonnummer
 kunde.IstEingeloggt = false
 
 // Klassenefinition des Kundenberaters
@@ -295,10 +299,14 @@ app.get('/profil', (req, res) => {
 	
 	if(kunde.IstEingeloggt){
 
-		// Wenn die Zugangsdaten korrekt sind, dann wird die angesurfte Seite gerendert.
+		// Alle Kundendaten werden an die View übergeben
 		res.render('profil.ejs',{
 			Meldung: "",
-			Email: kunde.Mail
+			Email: kunde.Mail,
+			Vorname: kunde.Vorname,
+			Nachname: kunde.Nachname,
+			Benutzername: kunde.Benutzername,
+			Telefonnummer: kunde.Telefonnummer
 		});
 
 	}else{
@@ -334,15 +342,49 @@ app.post('/profil', (req, res) => {
 			meldung = "EMail-adresse ungültig";
 		}
 		
-		// Die profil-Seite wird gerendert.
+		// Nach Änderung werden alle Kundendaten inkl. neuer Mail-Adresse angezeigt
 		res.render('profil.ejs',{
 			Meldung: meldung,
-			Email: ""
+			Email: kunde.Mail,
+			Vorname: kunde.Vorname,
+			Nachname: kunde.Nachname,
+			Benutzername: kunde.Benutzername,
+			Telefonnummer: kunde.Telefonnummer
 		});
 
 	}else{
 		
 		// Wenn die Zugangsdaten nicht korrekt sind, dann wird die login-Seite gerendert.
+		res.render('login.ejs',{
+			Meldung: "Melden Sie sich zuerst an."
+		});
+	}
+});
+
+// POST-Handler für Telefonnummer ändern
+app.post('/profil/telefon', (req, res) => {
+	var meldung = "";
+	if(kunde.IstEingeloggt){
+
+		let telefon = req.body.Telefonnummer;
+
+		// Telefonnummer darf nicht leer sein
+		if(telefon && telefon.trim().length > 0){
+			meldung = "Telefonnummer geändert.";
+			kunde.Telefonnummer = telefon;
+		}else{
+			meldung = "Telefonnummer ungültig.";
+		}
+		res.render('profil.ejs',{
+			Meldung: meldung,
+			Email: kunde.Mail,
+			Vorname: kunde.Vorname,
+			Nachname: kunde.Nachname,
+			Benutzername: kunde.Benutzername,
+			Telefonnummer: kunde.Telefonnummer
+		});
+
+	}else{
 		res.render('login.ejs',{
 			Meldung: "Melden Sie sich zuerst an."
 		});
@@ -380,24 +422,27 @@ app.get('/kreditBeantragen', (req, res) => {
 // Kommentar: 
 app.post('/kreditBeantragen', (req, res) => {
 
-	// Kommentar:
+	// Die vom Nutzer im Formular eingegebenen Werte für Betrag, Laufzeit und Zinssatz werden aus dem Request-Body ausgelesen.
 	let zinsbetrag = req.body.Betrag;
 	let laufzeit = req.body.Laufzeit;
 	let zinssatz = req.body.Zinssatz;
 
-	// Kommentar:
+	// Der Rückzahlungsbetrag wird mit der Zinseszinsformel berechnet.
 	let kredit = zinsbetrag * Math.pow(1+zinssatz/100,laufzeit);
 	
-	// Kommentar:
+	// Der Rückzahlungsbetrag wird kaufmännisch auf zwei Nachkommastellen gerundet und als String formatiert.
+	let kreditFormatiert = kredit.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+	// Der berechnete Rückzahlungsbetrag wird in der Konsole ausgegeben.
 	console.log("Rückzahlungsbetrag: " + kredit + " €.")
 
-	// Kommentar:
+	// Die Seite 'kreditBeantragen.ejs' wird mit den aktuellen Werten und einer Meldung zum Rückzahlungsbetrag gerendert.
 	res.render('kreditBeantragen.ejs',{
 		Laufzeit: laufzeit,
 		Zinssatz: zinssatz,		
 		Betrag: zinsbetrag,
-		// Kommentar:
-		Meldung: "Rückzahlungsbetrag: " + kredit + " €."
+		// Die Meldung enthält den formatierten Rückzahlungsbetrag, der dem Nutzer angezeigt wird.
+		Meldung: "Rückzahlungsbetrag: " + kreditFormatiert + " €."
 	});
 });
 
